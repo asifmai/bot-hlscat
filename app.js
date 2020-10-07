@@ -34,8 +34,7 @@ const fetch = () => new Promise(async (resolve, reject) => {
     const numberOfPages = await page.$eval('.pagination > li:last-child > a', elm => Number(elm.getAttribute('data-ci-pagination-page').trim()));
     console.log(`Number of Pages: ${numberOfPages}`);
 
-    // for (let pageNumber = 1; pageNumber <= numberOfPages; pageNumber++) {
-    for (let pageNumber = 1; pageNumber <= 10; pageNumber++) {
+    for (let pageNumber = 1; pageNumber <= numberOfPages; pageNumber++) {
       console.log(`${pageNumber}/${numberOfPages} - Scraping page...`);
       if (pageNumber > 1) {
         await page.goto(`${siteLink}/${pageNumber}`, {
@@ -46,7 +45,7 @@ const fetch = () => new Promise(async (resolve, reject) => {
 
       await page.waitForSelector('table.stream_table > tbody');
 
-      const trs = await page.$$('table.stream_table > tbody > tr');
+      const trs = await page.$$('table.stream_table > tbody > tr:not(.aa)');
 
       for (let i = 0; i < trs.length; i = i + 2) {
         const isOnline = await trs[i].$('td:nth-of-type(4) > .online');
