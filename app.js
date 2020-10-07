@@ -2,7 +2,6 @@ const pupHelper = require('./puppeteerhelper');
 const {
   siteLink
 } = require('./keys');
-const moment = require('moment');
 const fs = require('fs');
 let browser;
 let channels = [];
@@ -47,9 +46,11 @@ const fetch = () => new Promise(async (resolve, reject) => {
 
       const trs = await page.$$('table.stream_table > tbody > tr:not(.aa)');
 
-      for (let i = 0; i < trs.length; i = i + 2) {
+      for (let i = 0; i < trs.length - 1; i = i + 2) {
         const isOnline = await trs[i].$('td:nth-of-type(4) > .online');
-        if (isOnline) {
+        const liveliness = await trs[i].$eval('td:nth-of-type(3)', elm => Number(elm.innerText.trim()));
+        
+        if (isOnline && liveliness > 50) {
           const channel = {
             status: 'online',
             name: '',
@@ -75,7 +76,7 @@ const fetch = () => new Promise(async (resolve, reject) => {
 
 const saveResults = () => new Promise(async (resolve, reject) => {
   try {
-    const fileName = `${moment().format('YYYY-MM-DD-HH-mm')}.m3u`;
+    const fileName = 'embyshare.m3u';
 
     for (let i = 0; i < channels.length; i++) {
       if (i == 0) {
